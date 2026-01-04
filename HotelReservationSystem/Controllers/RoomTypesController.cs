@@ -1,34 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using HotelReservationSystem.Data;
+using HotelReservationSystem.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
-using HotelReservationSystem.Data;
-using HotelReservationSystem.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HotelReservationSystem.Controllers
 {
-    [Authorize]
-    public class RoomsController : Controller
+    [Authorize(Roles = "Admin")]
+    public class RoomTypesController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public RoomsController(ApplicationDbContext context)
+        public RoomTypesController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Rooms
+        // GET: RoomTypes
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Rooms.Include(r => r.RoomType);
-            return View(await applicationDbContext.ToListAsync());
+            return View(await _context.RoomTypes.ToListAsync());
         }
 
-        // GET: Rooms/Details/5
+        // GET: RoomTypes/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -36,48 +35,39 @@ namespace HotelReservationSystem.Controllers
                 return NotFound();
             }
 
-            var room = await _context.Rooms
-                .Include(r => r.RoomType)
+            var roomType = await _context.RoomTypes
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (room == null)
+            if (roomType == null)
             {
                 return NotFound();
             }
 
-            return View(room);
+            return View(roomType);
         }
 
-        // GET: Rooms/Create
-        [Authorize(Roles = "Admin")]
+        // GET: RoomTypes/Create
         public IActionResult Create()
         {
-            ViewData["RoomTypeId"] = new SelectList(_context.RoomTypes, "Id", "Name");
             return View();
         }
 
-        // POST: Rooms/Create
+        // POST: RoomTypes/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("Id,RoomNumber,RoomTypeId,IsAvailable")] Room room)
+        public async Task<IActionResult> Create([Bind("Id,Name,BasePrice")] RoomType roomType)
         {
-            ModelState.Remove("RoomType");
-
             if (ModelState.IsValid)
             {
-                _context.Add(room);
+                _context.Add(roomType);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["RoomTypeId"] = new SelectList(_context.RoomTypes, "Id", "Name", room.RoomTypeId);
-            return View(room);
+            return View(roomType);
         }
 
-        // GET: Rooms/Edit/5
-        [Authorize(Roles = "Admin")]
+        // GET: RoomTypes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -85,40 +75,36 @@ namespace HotelReservationSystem.Controllers
                 return NotFound();
             }
 
-            var room = await _context.Rooms.FindAsync(id);
-            if (room == null)
+            var roomType = await _context.RoomTypes.FindAsync(id);
+            if (roomType == null)
             {
                 return NotFound();
             }
-            ViewData["RoomTypeId"] = new SelectList(_context.RoomTypes, "Id", "Name", room.RoomTypeId);
-            return View(room);
+            return View(roomType);
         }
 
-        // POST: Rooms/Edit/5
+        // POST: RoomTypes/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,RoomNumber,RoomTypeId,IsAvailable")] Room room)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,BasePrice")] RoomType roomType)
         {
-            if (id != room.Id)
+            if (id != roomType.Id)
             {
                 return NotFound();
             }
-
-            ModelState.Remove("RoomType");
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(room);
+                    _context.Update(roomType);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!RoomExists(room.Id))
+                    if (!RoomTypeExists(roomType.Id))
                     {
                         return NotFound();
                     }
@@ -129,13 +115,10 @@ namespace HotelReservationSystem.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["RoomTypeId"] = new SelectList(_context.RoomTypes, "Id", "Name", room.RoomTypeId);
-            return View(room);
+            return View(roomType);
         }
 
-        // GET: Rooms/Delete/5
-
-        [Authorize(Roles = "Admin")]
+        // GET: RoomTypes/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -143,36 +126,34 @@ namespace HotelReservationSystem.Controllers
                 return NotFound();
             }
 
-            var room = await _context.Rooms
-                .Include(r => r.RoomType)
+            var roomType = await _context.RoomTypes
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (room == null)
+            if (roomType == null)
             {
                 return NotFound();
             }
 
-            return View(room);
+            return View(roomType);
         }
 
-        // POST: Rooms/Delete/5
+        // POST: RoomTypes/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var room = await _context.Rooms.FindAsync(id);
-            if (room != null)
+            var roomType = await _context.RoomTypes.FindAsync(id);
+            if (roomType != null)
             {
-                _context.Rooms.Remove(room);
+                _context.RoomTypes.Remove(roomType);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool RoomExists(int id)
+        private bool RoomTypeExists(int id)
         {
-            return _context.Rooms.Any(e => e.Id == id);
+            return _context.RoomTypes.Any(e => e.Id == id);
         }
     }
 }

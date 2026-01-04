@@ -22,9 +22,36 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+
+                        @* all users - browse rooms *@
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-controller="Rooms" asp-action="Index">Browse Rooms</a>
                         </li>
+
+                        @* admin only - management *@
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-danger" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Admin Management
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                                    <li><a class="dropdown-item" asp-controller="Rooms" asp-action="Index">Manage Rooms</a></li>
+                                    <li><a class="dropdown-item" asp-controller="RoomTypes" asp-action="Index">Manage Room Types</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Guests" asp-action="Index">Manage Guests</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="/api/rooms">Rooms API (JSON)</a></li>
+                                </ul>
+                            </li>
+                        }
+
+                        @* regular user only - view reservations *@
+                        @if (User.Identity.IsAuthenticated && !User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Reservations" asp-action="Index">My Reservations</a>
+                            </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
