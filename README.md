@@ -1,7 +1,7 @@
 # Hotel Reservation System
 
 ## Installation
-1. **Clone the repository**.
+1. **Clone the repository**. https://github.com/kacperborowieckb/bdwai-project
 2. **Database Setup**: 
    - Open **Package Manager Console** in Visual Studio.
    - Run command: `Update-Database`.
@@ -26,3 +26,4 @@ We have 2 roles, **User** and **Admin**:
 2. **RoomType**: Linked to Room (One-to-Many).
 3. **Guest**: Represents the customer.
 4. **Reservation**: Links Guest and Room (Many-to-Many relationship).
+
